@@ -130,3 +130,6 @@ dmypy.json
 
 # calls data
 data/calls.csv
+
+# temporary data
+tmp/*
