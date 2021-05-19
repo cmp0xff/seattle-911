@@ -1,18 +1,16 @@
 
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import TimeSeriesSplit
 
-import init
+def fwd_splitter(n_spi=2, tr_week=261, te_week=52) :
+    return TimeSeriesSplit(n_splits=n_spi, max_train_size=tr_week*7*24, test_size=te_week*7*24)
 
-def train_test(tsize=.3, rseed=0) :
-    xy_all = init.init()
-    xy_df = xy_all.loc['2016':'2020']
+import numpy as np
 
-    return train_test_split(
-        xy_df.iloc[:, 1:], 
-        xy_df.iloc[:, 0], 
-        test_size=tsize,
-        random_state=rseed) # + (xy_all.loc['2015'].iloc[:, 1:], xy_all.loc['2015'].iloc[:, 0])
+def nai_splitter() :
+    te_ind = -365*24
+    tr_ind = (-365*5-1)*24+te_ind-1
+    return np.arange(tr_ind, te_ind), np.arange(te_ind, -1)
 
 from sklearn.pipeline import Pipeline
 import sklearn.preprocessing as skl_prep
