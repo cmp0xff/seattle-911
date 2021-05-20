@@ -8,11 +8,7 @@ import matplotlib.pyplot as plt
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_squared_error
 
-import init
-import prep
-import model
-import train
-import main
+import init, prep, model, train, main
 from importlib import reload
 
 def calls_te() :
@@ -80,7 +76,7 @@ def nai_te() :
     print(tr_ind, e1_ind, e2_ind)
     print(x.iloc[tr_ind].info(), y.iloc[e1_ind].head(2), y.iloc[e2_ind].head(2),)
 
-def printer(x, y, te_ind, mod) :
+def printer(x, y, te_ind, mod, binn='W') :
     print('Testing Gradient Boosting Regressor with .iloc[' + str(te_ind[0]) + ', ' + str(te_ind[-1]) + ']')
 
     y_pd = mod.predict(x.iloc[te_ind])
@@ -90,7 +86,7 @@ def printer(x, y, te_ind, mod) :
 
     pd.DataFrame(data=y_pd, 
                  index=y.iloc[te_ind].index, 
-                 columns=['prediction']).join(y.iloc[te_ind]).resample('W').sum().plot()
+                 columns=['prediction']).join(y.iloc[te_ind]).resample(binn).sum().plot()
     plt.title('Gradient Boosting Regressor with .iloc[' + str(te_ind[0]) + ':' + str(te_ind[-1]) + ']')
     plt.show()
 
@@ -99,7 +95,6 @@ def model_fwd_te(n_spi=2) :
     reload(init)
     reload(prep)
     reload(model)
-    reload(pred_te)
 
     x, y = init.init()
 
@@ -115,7 +110,7 @@ def model_fwd_te(n_spi=2) :
         mod.fit(x_tr, y_tr)
         print('Training Gradient Boosting Regressor successful in ' + str(timer() - tim) + ' s')
 
-        pred_te.printer(x, y, te_ind, mod)
+        printer(x, y, te_ind, mod)
 
     
 def model_nai_te() :
@@ -123,7 +118,6 @@ def model_nai_te() :
     reload(init)
     reload(prep)
     reload(model)
-    reload(pred_te)
 
     x, y = init.init()
 
@@ -139,21 +133,37 @@ def model_nai_te() :
     mod.fit(x.iloc[tr_ind], y.iloc[tr_ind])
     print('Training Gradient Boosting Regressor successful in ' + str(timer() - tim) + ' s')
 
-    pred_te.printer(x, y, e1_ind, mod)
-    pred_te.printer(x, y, e2_ind, mod)
+    printer(x, y, e1_ind, mod)
+    printer(x, y, e2_ind, mod)
 
-def train_te() :
+def train_te(retrain=False) :
 
     reload(init)
     reload(prep)
     reload(train)
-    reload(pred_te)
 
     x, y = init.init()
 
     tr_ind, e1_ind, e2_ind = prep.nai_splitter()
 
-    reg = train.train()
+    reg = train.train(redo=retrain)
 
-    pred_te.printer(x, y, e1_ind, reg)
-    pred_te.printer(x, y, e2_ind, reg)
+    printer(x, y, e1_ind, reg)
+    printer(x, y, e2_ind, reg)
+
+import os
+import pandas as pd
+
+import init, main
+
+def data_gen(fwtr='./data/test_in.csv', fcalls='./data/test_cal.csv') :
+    wtr_dr = init.weather_parser()
+
+    calls_dr = init.calls_parser()
+    calls_dr = calls_dr.loc['2020-07-04']
+    calls_dr.index.rename('Datetime', inplace=True)
+    calls_dr.index = calls_dr.index.strftime("%m/%d/%Y %I:%M:%S %p")
+    print(calls_dr.head())
+
+    wtr_dr.loc['2020-07-04'].to_csv(fwtr)
+    calls_dr.to_csv(fcalls)

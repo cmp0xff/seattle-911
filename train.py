@@ -4,17 +4,15 @@ from sklearn.model_selection import GridSearchCV
 from time import process_time as timer
 import joblib
 
-import init
-import prep
-import model
+import init, prep, model
 
-def train() :
+def train(redo = False) :
 
     if not os.path.exists('./tmp') :
         os.system('mkdir tmp')
 
     train_pt = './tmp/reg.pkl'
-    if os.path.isfile(train_pt) :
+    if not redo and os.path.isfile(train_pt) :
         reg = joblib.load(train_pt)
         print('Regressor loaded from ' + train_pt)
     else:
@@ -22,9 +20,12 @@ def train() :
         tr_ind, e1_ind, e2_ind = prep.nai_splitter()
     
         p_grid = {
-            'regressor__learning_rate': [.5, .25, .1, .05, .01],
-            'regressor__n_estimators': [25, 50, 100, 200, 400],
-            'regressor__max_depth': [3, 4, 5]
+            'regressor__learning_rate': [.1,], # .1
+            'regressor__n_estimators': [x + 100 for x in range(5)], # 100
+            'regressor__subsample': [1.], # 1.
+            'regressor__max_depth': [3], # 3
+            'regressor__max_features': ['auto'],
+            'regressor__tol': [1e-4],
         }
 
         tim = timer()
@@ -36,6 +37,8 @@ def train() :
         print('Cross validating by Grid Search')
         reg.fit(x.iloc[tr_ind], y.iloc[tr_ind])
         # print('Cross validating by Grid Search successful in ' + str(timer() - tim) + ' s')
+        
+        print(reg.best_params_)
 
         joblib.dump(reg, train_pt)
         print('Regressor dumped to ' + train_pt)

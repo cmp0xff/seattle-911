@@ -1,7 +1,7 @@
 
 from sklearn.pipeline import Pipeline
-# from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import GradientBoostingRegressor
+#from sklearn.ensemble import HistGradientBoostingRegressor
 
 import prep
 

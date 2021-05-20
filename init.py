@@ -3,28 +3,27 @@ import os
 import pandas as pd
 from time import process_time as timer
 
-def calls_parser(fname) :
+def calls_parser(fname='./data/calls.csv') :
     print('Loading raw Seattle 911 calls database from ' + fname)
     tim = timer()
     calls_df = pd.read_csv(fname)
-    print('Raw Seattle 911 calls database loaded in ' + str(timer() - tim))
+    print('Raw Seattle 911 calls database loaded in ' + str(timer() - tim) + ' s')
 
     calls_df['Datetime'] = pd.to_datetime(calls_df['Datetime'],\
                                           format="%m/%d/%Y %I:%M:%S %p"\
                                          ).dt.tz_localize(tz='US/Pacific',\
                                                           ambiguous='NaT')
 
-    calls_df.dropna(inplace=True)
     calls_df.set_index('Datetime', inplace=True)
     calls_df.index.set_names('datetime', inplace=True)
     calls_df.sort_index(inplace=True)
+    
+    calls_df.dropna(inplace=True)
 
     return calls_df
 
 
 def init_calls() :
-    # Convert to pandas DataFrame
-    
     calls_df_pt = './tmp/calls_df.parquet'
     
     if not os.path.exists('./tmp') :
@@ -52,7 +51,7 @@ def init_calls() :
     
     return calls_df
 
-def weather_parser(fname) :
+def weather_parser(fname='./data/Seattle Weatherdata 2002 to 2020.csv') :
     print('Loading raw Seattle weather database from ' + fname)
     tim = timer()
     wtr_df = pd.read_csv(fname)
@@ -79,19 +78,20 @@ def init_weather() :
         # wtr_df.index.to_datetime().dt.tz_convert('US/Pacific')
         print('Parsed Seattle weather database loaded in ' + str(timer() - tim) + ' s')
     else :
-        wtr_df = weather_parser('./data/Seattle Weatherdata 2002 to 2020.csv')
-
-        wtr_df = wtr_df[~wtr_df.index.duplicated()]
+        wtr_df = weather_parser(fname='./data/Seattle Weatherdata 2002 to 2020.csv')
 
         print('Saving parsed Seattle weather database to ' + wtr_df_pt)
         tim = timer()
         wtr_df.to_parquet(wtr_df_pt) # wtr_df.to_hdf(wtr_df_pt, key='w', mode='w')
         print('Parsed Seattle weather database saved in ' + str(timer() - tim) + ' s')
 
+    wtr_df = wtr_df[~wtr_df.index.duplicated()]
+
     return(wtr_df)
 
 def feature_parser(wtr_df) :
-    x = wtr_df[['temp', 'temp_min', 'temp_max', 'pressure', 'humidity', 'wind_speed', 'wind_deg', 'weather_id']]
+    x = wtr_df[['temp', #'temp_min', 'temp_max',
+                'pressure', 'humidity', 'wind_speed', 'wind_deg', 'weather_id']]
     x.index.set_names('datetime', inplace=True)
 
     x_tim = x.index.isocalendar()
