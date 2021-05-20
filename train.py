@@ -35,7 +35,7 @@ def train() :
 
         print('Cross validating by Grid Search')
         reg.fit(x.iloc[tr_ind], y.iloc[tr_ind])
-        print('Cross validating by Grid Search successful in ' + str(timer() - tim) + ' s')
+        # print('Cross validating by Grid Search successful in ' + str(timer() - tim) + ' s')
 
         joblib.dump(reg, train_pt)
         print('Regressor dumped to ' + train_pt)

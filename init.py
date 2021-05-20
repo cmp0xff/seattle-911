@@ -39,9 +39,7 @@ def init_calls() :
     
         if not os.path.exists(calls_pt) :
             print('Downloading missing raw Seattle 911 calls database to ' + calls_pt)
-            tim = timer()
             os.system('cat get_calls.sh | sh')
-            print('Raw Seattle 911 calls database downloaded in ' + str(timer() - tim) + ' s')
     
         calls_df = calls_parser(calls_pt)
 
