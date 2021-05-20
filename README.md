@@ -48,7 +48,7 @@ This will generate training data from 1 to 7 in Jan 2020.
 python3 main.py -W
 ```
 
-### Input
+## Input
 
 Use the same format as the original weather and calls databases.
 
@@ -60,7 +60,7 @@ The scores and R-squares quantify the quality of the prediction. The prediction 
 python3 main.py -w weather.csv [-c calls.csv]
 ```
 
-### Clean
+## Clean
 
 Delete call database, all `.sh`, and `./tmp`
 ```
